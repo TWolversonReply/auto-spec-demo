@@ -1,9 +1,18 @@
 <!-- Sync Impact Report
-  Version change: 1.0.1 -> 1.1.0
-  Modified principles: VII. Infrastructure as Code -> VII. Infrastructure as Code & Repeatability
+  Version change: 2.0.1 -> 2.0.2
+  Modified principles:
+    - V. Team Ownership Accessibility (clarified business-system ownership plus central-team enablement)
+    - VII. Infrastructure as Code Ownership (clarified domain ownership with central infrastructure stewardship)
+    - Team Structure & Responsibilities (restored central teams)
+    - Sociotechnical Architecture (restored stream-aligned + enabling/platform model)
   Added sections: None
   Removed sections: None
-  Templates requiring updates: None (intentionally deferred; template files reverted by request)
+  Templates requiring updates:
+    - ✅ .specify/templates/plan-template.md (reviewed, no constitution-specific team references)
+    - ✅ .specify/templates/spec-template.md (reviewed, no constitution-specific team references)
+    - ✅ .specify/templates/tasks-template.md (reviewed, no constitution-specific team references)
+    - ✅ .specify/templates/commands/*.md (no command templates present in repository)
+    - ✅ README.md (reviewed, no conflicting team-ownership statements)
   Follow-up TODOs:
     - Run /speckit.diagram-gen.update to regenerate sociotechnical diagrams after constitution/model changes
     - Ensure CI pipeline regenerates and publishes the diagram artifact at images/context-map.png
@@ -28,17 +37,17 @@ Migration MUST proceed domain-by-domain, not as a big-bang cutover. Each domain 
 
 Architectural decisions MUST prioritise elimination of Oracle licence costs and on-premises infrastructure burden. Serverless and consumption-based Azure services MUST be preferred over provisioned capacity where workload patterns allow. Total cost of ownership (including operational overhead) MUST be evaluated for every technology choice.
 
-### V. Team Accessibility
+### V. Team Ownership Accessibility
 
-Integration patterns and tooling MUST be accessible to business domain teams with varying technical capability. Self-service capabilities (e.g., templated Logic Apps, standardised connectors, documented APIs) MUST be provided so domain teams can build and maintain their own integrations with guidance from the Integration team. Documentation MUST be clear, example-driven, and free of unnecessary jargon.
+Integration patterns and tooling MUST be accessible to the three owning business-system teams: Student Services, HR Systems, and Awards. Self-service capabilities (e.g., templated Logic Apps, standardised connectors, documented APIs) MUST be provided so these teams can build and maintain their own integrations with enablement from central teams where needed. Documentation MUST be clear, example-driven, and free of unnecessary jargon.
 
 ### VI. Observable by Default
 
 Every integration flow MUST emit structured telemetry (logs, metrics, traces) to a centralised observability platform. Failures MUST produce actionable alerts with sufficient context for diagnosis. End-to-end message tracing across domain boundaries MUST be supported from day one of each migrated flow.
 
-### VII. Infrastructure as Code & Repeatability
+### VII. Infrastructure as Code Ownership
 
-All Azure resources MUST be provisioned and managed through infrastructure-as-code (Bicep or Terraform). No manual portal changes in production environments. Environment promotion (dev → test → prod) MUST follow a consistent, automated pipeline managed by the Infrastructure team.
+All Azure resources MUST be provisioned and managed through infrastructure-as-code (Bicep or Terraform). No manual portal changes in production environments. Environment promotion (dev -> test -> prod) MUST follow a consistent, automated pipeline owned by the team that owns the affected domain, with central stewardship from the Infrastructure team.
 
 ### VIII. Sociotechnical Architecture as Source of Truth
 
@@ -59,35 +68,35 @@ The following domains represent the integration boundaries for migration plannin
 
 | Team | Role in Migration |
 |------|-------------------|
-| **Integration** | Owns migration execution, defines patterns, builds shared components, supports domain teams |
-| **Database Administration** | Manages Oracle-to-Azure data migration, ensures data integrity during transition |
-| **Infrastructure** | Provisions Azure landing zones, manages networking/security, maintains CI/CD pipelines |
-| **Business Domain Teams** | Own domain-specific integration logic, validate migrated flows, adopt self-service tooling |
+| **Student Services** | Owns Students, Courses, Payments, and Apprenticeships domain integration logic, validation, and operations |
+| **HR Systems** | Owns Staff domain integration logic, validation, and operations |
+| **Awards** | Owns Awards domain integration logic, validation, and operations |
+| **Integration** | Enabling central team; defines migration standards, shared components, and pairing support across all domains |
+| **Infrastructure** | Central platform team; owns landing zones, security guardrails, and CI/CD platform capabilities |
+| **Database Administration** | Central data platform team; owns Oracle-to-Azure data migration standards and data integrity controls |
 
-Domain teams MUST be supported with training, templates, and pairing sessions. The Integration team MUST NOT become a bottleneck — their role is to enable, not gatekeep.
+Business-system ownership and central-team enablement are both authoritative and MUST be reflected in `model/context-map.cml`.
 
 ## Sociotechnical Architecture
 
-The migration programme follows a **Team Topologies** approach to align team structure with business domain boundaries:
+This sociotechnical context map is generated from the Context Mapper CML source model by the CI/CD pipeline to keep team ownership and domain boundaries consistent with the constitution.
 
-- **Stream-aligned teams** (Business Domain Teams) each own one bounded context — Students, Staff, Payments, Courses, Awards, or Apprenticeships. They are responsible for migrating and validating the integration logic within their domain.
-- **Enabling team** (Integration) supports all domain teams by defining migration patterns, building shared components, and providing pairing/training. They do not own domain logic directly.
-- **Platform teams** (Infrastructure, Database Administration) provide the underlying capabilities — Azure landing zones, CI/CD pipelines, and data migration tooling — that all stream-aligned teams consume.
-
-Cross-domain communication uses versioned contracts via Azure Service Bus and Event Grid, ensuring each bounded context remains autonomous. No shared databases or direct service coupling exists between domains.
+- **Stream-aligned business-system teams**: Student Services, HR Systems, and Awards own domain integration delivery.
+- **Enabling central team**: Integration accelerates delivery through standards, templates, and shared capabilities.
+- **Platform central teams**: Infrastructure and Database Administration provide foundational platform and data migration capabilities consumed by business-system teams.
 
 ![Sociotechnical Context Map](../images/context-map.png)
 
-The formal model behind this diagram is maintained at [model/context-map.cml](../model/context-map.cml).
+Source: [model/context-map.cml](../model/context-map.cml)
 
 ## Governance
 
 - This constitution supersedes all other integration development practices for the migration programme.
-- Amendments require: documented rationale, review by Integration team lead, and a migration impact assessment.
+- Amendments require: documented rationale, review by representatives of Student Services, HR Systems, Awards, Integration, Infrastructure, and Database Administration teams, and a migration impact assessment.
 - All pull requests MUST verify compliance with these principles.
 - Architecture Decision Records (ADRs) MUST be created for any deviation from stated principles.
 - Pull requests that modify business domains, team ownership, or boundaries MUST include updated sociotechnical model and regenerated diagrams.
 - Speckit constitution updates MUST trigger the diagram generation hook (`speckit.diagram-gen.update`) before completion.
 - Quarterly reviews MUST assess migration progress, cost reduction achieved, and principle adherence.
 
-**Version**: 1.1.0 | **Ratified**: 2026-06-29 | **Last Amended**: 2026-06-29
+**Version**: 2.0.2 | **Ratified**: 2026-06-29 | **Last Amended**: 2026-06-29
