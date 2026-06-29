@@ -21,83 +21,98 @@ Follow this execution flow:
 
 2. **Generate the CML model** at `model/context-map.cml`.
 
-   The CML file MUST follow this structure:
+   The CML file MUST follow this structure (based on the
+   [Context Mapper insurance team-map example](https://contextmapper.org/docs/context-map-generator/)):
 
    ```cml
    /**
-    * SYSTEM_LANDSCAPE map — domain bounded contexts and their relationships.
-    * Only APPLICATION/FEATURE/SYSTEM contexts go in the contains list.
-    * TEAM contexts are defined separately OUTSIDE any ContextMap block.
+    * Single ORGANIZATIONAL map containing both domain context relationships
+    * and team-to-team relationships. This produces a unified diagram showing
+    * bounded contexts clustered under the teams that own them.
     */
-   ContextMap ProjectContextMap {
-     type = SYSTEM_LANDSCAPE
+   ContextMap ProjectMap {
+     type = ORGANIZATIONAL
      state = TO_BE
 
-     contains <BoundedContext1>, <BoundedContext2>, ...
+     /* Domain contexts (subsystems/components) */
+     contains <DomainName1>Context, <DomainName2>Context, ...
 
-     // Upstream-downstream: arrow points from upstream to downstream
+     /* Teams */
+     contains <TeamName1>Team, <TeamName2>Team, ...
+
+     /* Domain context relationships */
      <DownstreamContext> [D,CF]<-[U,OHS,PL] <UpstreamContext> {
        implementationTechnology = "Azure Service Bus"
      }
+
+     /* Team relationships — enabling/platform teams support stream-aligned teams */
+     <EnablingTeam> [U,S]->[D,C] <StreamAlignedTeam>
    }
 
-   // One BoundedContext per business domain
+   /* Team definitions — each realizes the domain contexts it owns */
+   BoundedContext <TeamName>Team realizes <DomainName>Context {
+     type = TEAM
+     domainVisionStatement = "<team topology role>: <team purpose>"
+   }
+
+   /* Domain context definitions */
    BoundedContext <DomainName>Context implements <SubdomainName> {
      type = APPLICATION
      domainVisionStatement = "<description from constitution>"
      responsibilities = "<key responsibilities>"
    }
 
-   // Domain hierarchy
+   /* Domain hierarchy */
    Domain <ProjectName>Domain {
      Subdomain <SubdomainName> {
        type = CORE_DOMAIN
        domainVisionStatement = "<vision>"
      }
    }
-
-   // One BoundedContext per team — standalone, NOT inside any ContextMap block
-   BoundedContext <TeamName>Team realizes <DomainName>Context {
-     type = TEAM
-     domainVisionStatement = "<team role from constitution>"
-   }
    ```
 
    ### CML Syntax Rules (validated against Context Mapper CLI v6.12.0)
 
    **File structure:**
-   - The CML file MUST contain exactly ONE `ContextMap` block of type `SYSTEM_LANDSCAPE`.
-   - Do NOT create a second `ContextMap` block (e.g. `ORGANIZATIONAL`). The Context Mapper
-     CLI `context-map` generator crashes with `BoundedContextAlreadyPartOfContextMapException`
-     when two `ContextMap` blocks coexist in a single file.
-   - TEAM bounded contexts are defined as standalone `BoundedContext` declarations outside
-     the `ContextMap` block. They use `realizes` to link to the domain contexts they own.
-     This preserves team-to-context ownership in the model without requiring a second map.
+   - The CML file MUST contain exactly ONE `ContextMap` block of type `ORGANIZATIONAL`.
+   - Use `ORGANIZATIONAL` (not `SYSTEM_LANDSCAPE`) so that both domain contexts AND
+     team contexts can appear in the same map. This is the pattern shown in the
+     [Context Mapper docs](https://contextmapper.org/docs/context-map-generator/).
+   - Do NOT create two `ContextMap` blocks in a single file. The Context Mapper CLI
+     `context-map` generator crashes with `BoundedContextAlreadyPartOfContextMapException`
+     when two `ContextMap` blocks coexist.
+   - All domain contexts AND all team contexts MUST appear in the `contains` list of
+     the single `ContextMap` block.
 
    **Context types:**
    - Each **business domain** → `BoundedContext` with `type = APPLICATION`.
-   - Each **team** → `BoundedContext` with `type = TEAM` with `realizes`.
-   - TEAM contexts MUST NOT appear in the `contains` list of a `SYSTEM_LANDSCAPE` map.
+   - Each **team** → `BoundedContext` with `type = TEAM` with `realizes` referencing
+     the domain context(s) that team owns.
 
    **Relationship syntax:**
-   - **Upstream/Downstream**: Use `<-` or `->` arrow syntax. The arrow ALWAYS points
-     from upstream to downstream.
+   - **Domain-to-domain relationships** (upstream/downstream):
+     Use `<-` or `->` arrow syntax. The arrow ALWAYS points from upstream to downstream.
      Example: `DownstreamCtx [D,CF]<-[U,OHS,PL] UpstreamCtx`
+   - **Team-to-team relationships** (enabling/platform → stream-aligned):
+     Use Customer/Supplier: `EnablingTeam [U,S]->[D,C] StreamAlignedTeam`
    - **NEVER** use `<->` for upstream/downstream. `<->` is ONLY for symmetric
      relationships: Partnership `[P]<->[P]` or Shared Kernel `[SK]<->[SK]`.
-   - **Downstream roles** (left of `<-`): `CF` (Conformist), `ACL` (Anticorruption Layer).
-   - **Upstream roles** (right of `<-`): `OHS` (Open Host Service), `PL` (Published Language).
+   - **Downstream roles** (left of `<-`): `CF` (Conformist), `ACL` (Anticorruption Layer),
+     `C` (Customer).
+   - **Upstream roles** (right of `<-`): `OHS` (Open Host Service), `PL` (Published Language),
+     `S` (Supplier).
    - Do NOT place upstream roles on the downstream side or vice versa.
    - Every context referenced in a relationship MUST be in the `contains` list.
 
    **Other rules:**
-   - Use `implementationTechnology` to note the target platform where relevant.
-   - The Integration team should `realizes` shared/cross-cutting contexts.
+   - Use `implementationTechnology` on domain-to-domain relationships where relevant.
+   - Enabling/platform teams should `realizes` all domain contexts they support.
+   - Stream-aligned teams should `realizes` the specific domain context(s) they own.
    - Include a `Domain` block with `Subdomain` entries matching the constitution.
    - Subdomain types: `CORE_DOMAIN`, `SUPPORTING_DOMAIN`, `GENERIC_SUBDOMAIN`.
    - BoundedContext names must be unique across the entire CML file.
-   - The `=` sign in attribute assignments (e.g. `type = APPLICATION`) is optional in CML
-     but should be used consistently for readability.
+   - Prefix team `domainVisionStatement` values with the team topology role
+     (e.g. "Enabling team:", "Platform team:", "Stream-aligned:").
 
 3. **Render the context map image locally** using the Context Mapper CLI.
 
