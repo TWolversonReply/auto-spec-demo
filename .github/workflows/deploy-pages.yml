@@ -1,0 +1,66 @@
+name: Deploy MkDocs to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install MkDocs and dependencies
+        run: pip install mkdocs-material
+
+      - name: Assemble docs from repo sources
+        run: |
+          mkdir -p _build/docs
+
+          # Copy index
+          cp index.md _build/docs/index.md
+
+          # Copy .github content
+          cp .github/copilot-instructions.md _build/docs/copilot-instructions.md
+          cp -r .github/agents _build/docs/agents
+          cp -r .github/prompts _build/docs/prompts
+
+          # Copy .specify content
+          mkdir -p _build/docs/specify/memory
+          mkdir -p _build/docs/specify/extensions/agent-context/commands
+          mkdir -p _build/docs/specify/templates
+          cp .specify/memory/constitution.md _build/docs/specify/memory/constitution.md
+          cp .specify/extensions/agent-context/README.md _build/docs/specify/extensions/agent-context/README.md
+          cp .specify/extensions/agent-context/commands/speckit.agent-context.update.md _build/docs/specify/extensions/agent-context/commands/speckit.agent-context.update.md
+          cp -r .specify/templates/*.md _build/docs/specify/templates/
+
+      - name: Build MkDocs site
+        run: mkdocs build --strict
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

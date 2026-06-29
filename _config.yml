@@ -1,8 +1,0 @@
-title: auto-spec-demo
-description: Spec-Driven Development Demo
-baseurl: "/auto-spec-demo"
-url: "https://TWolversonReply.github.io"
-
-theme: minima
-
-markdown: kramdown
