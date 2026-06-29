@@ -114,6 +114,14 @@ Follow this execution flow:
    - Prefix team `domainVisionStatement` values with the team topology role
      (e.g. "Enabling team:", "Platform team:", "Stream-aligned:").
 
+   **Formatting (important for CLI compatibility):**
+   - Place the header comment (`/** ... */`) BEFORE the `ContextMap` block, not inside it.
+   - Do NOT use `/* */` block comments inside the `ContextMap` block body. The Context
+     Mapper CLI v6.12.0 can crash when block comments appear between relationship
+     definitions. Use `//` line comments if needed, or omit comments inside the block.
+   - Keep the `ContextMap` block clean: only `contains`, relationship definitions, and
+     `//` line comments.
+
 3. **Render the context map image locally** using the Context Mapper CLI.
 
    Before running the generator, ensure the tool is available:
