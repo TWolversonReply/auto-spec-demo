@@ -1,0 +1,73 @@
+/* Valorem Reply brand colours */
+:root {
+  --md-primary-fg-color: #0055b8;
+  --md-primary-fg-color--light: #3378c9;
+  --md-primary-fg-color--dark: #003d85;
+  --md-accent-fg-color: #0079bf;
+  --md-default-bg-color: #ffffff;
+  --md-default-fg-color: #333333;
+}
+
+/* Scheme override for the [data-md-color-scheme="valorem"] selector */
+[data-md-color-scheme="valorem"] {
+  --md-primary-fg-color: #0055b8;
+  --md-primary-fg-color--light: #3378c9;
+  --md-primary-fg-color--dark: #003d85;
+  --md-accent-fg-color: #0079bf;
+  --md-typeset-a-color: #0055b8;
+}
+
+/* Header styling - dark navy like Valorem */
+.md-header {
+  background-color: #1a1a2e;
+}
+
+/* Navigation sidebar */
+.md-nav__link:hover,
+.md-nav__link--active {
+  color: #0055b8;
+}
+
+/* Buttons and links */
+.md-typeset a {
+  color: #0055b8;
+}
+
+.md-typeset a:hover {
+  color: #0079bf;
+}
+
+/* Content area */
+.md-typeset h1,
+.md-typeset h2,
+.md-typeset h3 {
+  color: #1a1a2e;
+  font-weight: 600;
+}
+
+/* Table styling */
+.md-typeset table:not([class]) th {
+  background-color: #0055b8;
+  color: #ffffff;
+}
+
+/* Footer */
+.md-footer {
+  background-color: #1a1a2e;
+}
+
+/* Admonitions */
+.md-typeset .admonition,
+.md-typeset details {
+  border-radius: 10px;
+}
+
+/* Code blocks */
+.md-typeset code {
+  border-radius: 5px;
+}
+
+/* Search bar */
+.md-search__input {
+  border-radius: 10px;
+}

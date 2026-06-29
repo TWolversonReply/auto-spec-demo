@@ -34,6 +34,9 @@ jobs:
           # Copy index
           cp index.md _build/docs/index.md
 
+          # Copy static assets (stylesheets, images)
+          cp -r docs_assets/* _build/docs/
+
           # Copy constitution under home/constitution/
           mkdir -p _build/docs/constitution
           cp .specify/memory/constitution.md _build/docs/constitution/index.md

@@ -5,9 +5,17 @@ repo_url: https://github.com/TWolversonReply/auto-spec-demo
 theme:
   name: material
   custom_dir: overrides
+  font:
+    text: Poppins
+    code: Roboto Mono
   palette:
-    scheme: default
-    primary: indigo
+    scheme: valorem
+    primary: custom
+    accent: custom
+  features:
+    - navigation.sections
+    - navigation.expand
+    - toc.integrate
 
 docs_dir: _build/docs
 
@@ -20,3 +28,6 @@ markdown_extensions:
 
 plugins:
   - search
+
+extra_css:
+  - stylesheets/extra.css
