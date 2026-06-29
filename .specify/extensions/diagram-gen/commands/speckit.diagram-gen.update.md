@@ -10,7 +10,7 @@ $ARGUMENTS
 
 ## Outline
 
-You are generating a **Context Mapper CML model** that represents the sociotechnical architecture described in the project constitution. The CML model is then rendered into a context map image by the CI/CD pipeline using the Context Mapper CLI.
+You are generating a **Context Mapper CML model** that represents the sociotechnical architecture described in the project constitution, and then rendering it into a context map PNG image locally using the Context Mapper CLI.
 
 Follow this execution flow:
 
@@ -20,8 +20,6 @@ Follow this execution flow:
    - Extract any **relationships between domains** implied by the constitution (e.g., shared data, upstream/downstream dependencies).
 
 2. **Generate the CML model** at `model/context-map.cml`.
-
-   The CML file MUST follow this structure:
 
    The CML file MUST follow this structure:
 
@@ -101,24 +99,100 @@ Follow this execution flow:
    - The `=` sign in attribute assignments (e.g. `type = APPLICATION`) is optional in CML
      but should be used consistently for readability.
 
-3. **Update the constitution** at `.specify/memory/constitution.md`:
-   - Add a new section `## Sociotechnical Architecture` immediately before the `## Governance` section.
+3. **Render the context map image locally** using the Context Mapper CLI.
+
+   Before running the generator, ensure the tool is available:
+
+   a. **Check for Context Mapper CLI**:
+      - Look for `cm` (Linux/macOS) or `cm.bat` (Windows) on `PATH`.
+      - If not found, check for a local installation at `./cm-cli/context-mapper-cli-*/bin/cm` or `./cm-cli/context-mapper-cli-*/bin/cm.bat`.
+      - If still not found, **install it**:
+        ```bash
+        # Linux/macOS
+        mkdir -p cm-cli && cd cm-cli
+        curl -sL https://repo1.maven.org/maven2/org/contextmapper/context-mapper-cli/6.12.0/context-mapper-cli-6.12.0.tar -o cm.tar
+        tar xf cm.tar && rm cm.tar
+        cd ..
+        ```
+        ```powershell
+        # Windows
+        New-Item -ItemType Directory -Force cm-cli | Set-Location
+        curl -sL "https://repo1.maven.org/maven2/org/contextmapper/context-mapper-cli/6.12.0/context-mapper-cli-6.12.0.zip" -o cm.zip
+        Expand-Archive cm.zip -DestinationPath . -Force; Remove-Item cm.zip
+        Set-Location ..
+        ```
+
+   b. **Check for Java 17+** (required by Context Mapper CLI):
+      - Run `java -version` and verify the major version is ≥ 17.
+      - If Java is not available or below v17, inform the user and stop — do not attempt
+        to install Java automatically.
+
+   c. **Check for Graphviz** (required for PNG generation):
+      - Run `dot -V` to verify Graphviz is installed.
+      - If not found:
+        - Linux: `sudo apt-get install -y graphviz`
+        - macOS: `brew install graphviz`
+        - Windows: `winget install --id Graphviz.Graphviz --accept-package-agreements` or
+          `choco install graphviz -y`
+      - If installation fails, inform the user and stop.
+
+   d. **Run the generator**:
+      ```bash
+      mkdir -p docs_assets/images
+      ./cm-cli/context-mapper-cli-6.12.0/bin/cm generate \
+        -i model/context-map.cml \
+        -g context-map \
+        -o docs_assets/images/
+
+      # Context Mapper mirrors input path structure, creating a model/ subdir
+      # and names output as {file}_{MapName}.png — move and rename to stable reference
+      mv docs_assets/images/model/context-map_*.png docs_assets/images/context-map.png 2>/dev/null || \
+        mv docs_assets/images/context-map_*.png docs_assets/images/context-map.png 2>/dev/null || true
+      # Clean up intermediate files
+      rm -rf docs_assets/images/model/
+      rm -f docs_assets/images/*.svg docs_assets/images/*.gv
+      ```
+      ```powershell
+      New-Item -ItemType Directory -Force docs_assets\images | Out-Null
+      & cm-cli\context-mapper-cli-6.12.0\bin\cm.bat generate `
+        -i model\context-map.cml `
+        -g context-map `
+        -o docs_assets\images\
+
+      # Context Mapper mirrors input path structure, creating a model\ subdir
+      # and names output as {file}_{MapName}.png — move and rename to stable reference
+      $png = Get-ChildItem docs_assets\images -Recurse -Filter "context-map_*.png" | Select-Object -First 1
+      if ($png) { Move-Item $png.FullName docs_assets\images\context-map.png -Force }
+      # Clean up intermediate files
+      Remove-Item -Recurse docs_assets\images\model -ErrorAction SilentlyContinue
+      Remove-Item docs_assets\images\*.svg, docs_assets\images\*.gv -ErrorAction SilentlyContinue
+      ```
+
+   e. **Verify** the file `docs_assets/images/context-map.png` was created successfully.
+      If the generator fails, output the full error message for diagnosis.
+
+   f. **Clean up** — the cleanup is handled in step (d) above. No additional action needed.
+
+4. **Update the constitution** at `.specify/memory/constitution.md`:
+   - Add a new section `## Sociotechnical Architecture` immediately before the `## Governance` section (if it doesn't already exist; if it does, update it in place).
    - This section MUST contain:
-     - A brief explanation that this diagram is generated from the Context Mapper CML model by the CI/CD pipeline.
-     - An image reference to the generated context map: `![Sociotechnical Context Map](../images/context-map.png)`
+     - A brief explanation that this diagram is generated from the Context Mapper CML model.
+     - An image reference to the committed context map: `![Sociotechnical Context Map](../docs_assets/images/context-map.png)`
      - A link to the CML source: `Source: [model/context-map.cml](../model/context-map.cml)`
-   - Do NOT include Mermaid diagrams — the context map image is generated by Context Mapper CLI in the build pipeline.
+   - Do NOT include Mermaid diagrams — the context map image is generated by Context Mapper CLI.
    - Do NOT modify any other sections of the constitution.
    - Increment the constitution version (PATCH bump) and update `Last Amended` to today's date.
 
-4. **Validation**:
+5. **Validation**:
    - Every business domain from the constitution MUST appear as a BoundedContext.
    - Every team from the constitution MUST appear as a Team BoundedContext.
    - Every team MUST realize at least one domain context.
    - The CML file MUST be syntactically valid Context Mapper DSL.
+   - The file `docs_assets/images/context-map.png` MUST exist after generation.
 
-5. **Output a summary** listing:
+6. **Output a summary** listing:
    - Number of bounded contexts and teams modelled.
    - Relationships defined.
    - Constitution version bump.
+   - Whether Context Mapper CLI was already installed or freshly downloaded.
    - Suggested commit message.

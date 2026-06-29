@@ -2,6 +2,9 @@
 _build/
 site/
 
+# Context Mapper CLI (local tool — downloaded by diagram-gen hook)
+cm-cli/
+
 # Spec-kit workflow run logs
 .specify/workflows/runs/
 

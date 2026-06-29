@@ -27,32 +27,6 @@ jobs:
       - name: Install MkDocs and dependencies
         run: pip install mkdocs-material
 
-      - uses: actions/setup-java@v4
-        if: hashFiles('model/*.cml') != ''
-        with:
-          java-version: "17"
-          distribution: "temurin"
-
-      - name: Generate context map from CML
-        if: hashFiles('model/*.cml') != ''
-        run: |
-          # Install Graphviz (required by Context Mapper for context map images)
-          sudo apt-get update -qq && sudo apt-get install -y -qq graphviz > /dev/null
-
-          # Download Context Mapper CLI
-          curl -sL https://repo1.maven.org/maven2/org/contextmapper/context-mapper-cli/6.12.0/context-mapper-cli-6.12.0.tar -o cm.tar
-          tar xf cm.tar
-
-          # Generate context map image (PNG) and PlantUML from CML
-          mkdir -p _build/docs/images
-          ./context-mapper-cli-6.12.0/bin/cm generate -i model/context-map.cml -g context-map -o _build/docs/images/
-          ./context-mapper-cli-6.12.0/bin/cm generate -i model/context-map.cml -g plantuml -o _build/docs/images/
-
-          # Context Mapper names output as {file}_{MapName}.png — rename to stable reference
-          if ls _build/docs/images/context-map_*.png 1>/dev/null 2>&1; then
-            mv _build/docs/images/context-map_*.png _build/docs/images/context-map.png
-          fi
-
       - name: Assemble docs from repo sources
         run: |
           mkdir -p _build/docs
@@ -60,7 +34,7 @@ jobs:
           # Copy index
           cp index.md _build/docs/index.md
 
-          # Copy static assets (stylesheets, images)
+          # Copy static assets (stylesheets, images including generated context map)
           cp -r docs_assets/* _build/docs/
 
           # Copy constitution under home/constitution/
