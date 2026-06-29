@@ -48,6 +48,11 @@ jobs:
           ./context-mapper-cli-6.12.0/bin/cm generate -i model/context-map.cml -g context-map -o _build/docs/images/
           ./context-mapper-cli-6.12.0/bin/cm generate -i model/context-map.cml -g plantuml -o _build/docs/images/
 
+          # Context Mapper names output as {file}_{MapName}.png — rename to stable reference
+          if ls _build/docs/images/context-map_*.png 1>/dev/null 2>&1; then
+            mv _build/docs/images/context-map_*.png _build/docs/images/context-map.png
+          fi
+
       - name: Assemble docs from repo sources
         run: |
           mkdir -p _build/docs
