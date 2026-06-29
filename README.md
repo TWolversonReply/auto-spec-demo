@@ -33,6 +33,13 @@ GitHub Actions workflow
     Live site (auto-refreshes every 5s)
 ```
 
+### Sociotechnical Architecture Workflow
+
+- Canonical model: `model/context-map.cml`
+- Generated artifact: `images/context-map.png`
+- Constitution/model changes that affect domains, ownership, or boundaries must regenerate the diagram.
+- In Speckit workflows, run `/speckit.diagram-gen.update` (also configured as the mandatory `after_constitution` hook).
+
 ### Key Design Decisions
 
 | Decision | Rationale |

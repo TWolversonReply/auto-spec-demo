@@ -1,0 +1,193 @@
+/**
+ * Contoso University Integration Migration — Context Map
+ * Version: 1.0.0
+ * Generated: 2026-06-29
+ *
+ * Models the 6 bounded contexts (business domains), 4 teams,
+ * and their relationships per the project constitution.
+ */
+
+ContextMap ContosoUniversityIntegrationMap {
+  type = SYSTEM_LANDSCAPE
+  state = TO_BE
+
+  contains StudentsContext
+  contains StaffContext
+  contains PaymentsContext
+  contains CoursesContext
+  contains AwardsContext
+  contains ApprenticeshipsContext
+
+  /* Cross-domain relationships via versioned contracts (no shared DB, no direct coupling) */
+
+  /* Students enrol in Courses */
+  StudentsContext [D, CF] <-> [U, CF] CoursesContext {
+    implementationTechnology = "Azure Service Bus + versioned message contracts"
+  }
+
+  /* Students make Payments (fees, bursaries) */
+  StudentsContext [D, CF] <-> [U, CF] PaymentsContext {
+    implementationTechnology = "Azure Service Bus + versioned message contracts"
+  }
+
+  /* Students receive Awards on completion */
+  StudentsContext [D, CF] <-> [U, CF] AwardsContext {
+    implementationTechnology = "Azure Event Grid + versioned event schemas"
+  }
+
+  /* Courses feed into Awards (certification, graduation) */
+  CoursesContext [U, CF] <-> [D, CF] AwardsContext {
+    implementationTechnology = "Azure Event Grid + versioned event schemas"
+  }
+
+  /* Apprenticeships link to Courses (programme delivery) */
+  ApprenticeshipsContext [D, CF] <-> [U, CF] CoursesContext {
+    implementationTechnology = "Azure Service Bus + versioned message contracts"
+  }
+
+  /* Apprenticeships link to Students (apprentice records) */
+  ApprenticeshipsContext [D, CF] <-> [U, CF] StudentsContext {
+    implementationTechnology = "Azure Service Bus + versioned message contracts"
+  }
+
+  /* Apprenticeships generate Payments (employer/ESFA funding) */
+  ApprenticeshipsContext [D, CF] <-> [U, CF] PaymentsContext {
+    implementationTechnology = "Azure Service Bus + versioned message contracts"
+  }
+
+  /* Staff payroll interfaces link to Payments */
+  StaffContext [D, CF] <-> [U, CF] PaymentsContext {
+    implementationTechnology = "Azure Logic Apps + API Management"
+  }
+
+  /* Staff assigned to Courses (scheduling, workforce) */
+  StaffContext [D, CF] <-> [U, CF] CoursesContext {
+    implementationTechnology = "Azure Logic Apps + API Management"
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Bounded Contexts                                                    */
+/* ------------------------------------------------------------------ */
+
+BoundedContext StudentsContext implements StudentsDomain {
+  type = APPLICATION
+  domainVisionStatement = "Enrolment, registration, records, and progression"
+  implementationTechnology = "Azure Logic Apps, Azure Functions, Service Bus"
+  responsibilities = "StudentEnrolment", "Registration", "Records", "Progression"
+}
+
+BoundedContext StaffContext implements StaffDomain {
+  type = APPLICATION
+  domainVisionStatement = "HR, payroll interfaces, and workforce management"
+  implementationTechnology = "Azure Logic Apps, API Management"
+  responsibilities = "HRIntegration", "PayrollInterface", "WorkforceManagement"
+}
+
+BoundedContext PaymentsContext implements PaymentsDomain {
+  type = APPLICATION
+  domainVisionStatement = "Fee collection, bursaries, and financial transactions"
+  implementationTechnology = "Azure Functions, Service Bus, Event Grid"
+  responsibilities = "FeeCollection", "Bursaries", "FinancialTransactions"
+}
+
+BoundedContext CoursesContext implements CoursesDomain {
+  type = APPLICATION
+  domainVisionStatement = "Catalogue, scheduling, and LMS integration"
+  implementationTechnology = "Azure Logic Apps, API Management, Service Bus"
+  responsibilities = "CourseCatalogue", "Scheduling", "LMSIntegration"
+}
+
+BoundedContext AwardsContext implements AwardsDomain {
+  type = APPLICATION
+  domainVisionStatement = "Certification, graduation, and external awarding body interfaces"
+  implementationTechnology = "Azure Functions, Event Grid, API Management"
+  responsibilities = "Certification", "Graduation", "AwardingBodyInterface"
+}
+
+BoundedContext ApprenticeshipsContext implements ApprenticeshipsDomain {
+  type = APPLICATION
+  domainVisionStatement = "Employer engagement, ESFA funding bodies, and compliance reporting"
+  implementationTechnology = "Azure Logic Apps, Functions, Service Bus"
+  responsibilities = "EmployerEngagement", "ESFAFunding", "ComplianceReporting"
+}
+
+/* ------------------------------------------------------------------ */
+/* Domains                                                             */
+/* ------------------------------------------------------------------ */
+
+Domain ContosoUniversityDomain {
+  Subdomain StudentsDomain {
+    type = CORE_DOMAIN
+    domainVisionStatement = "Enrolment, registration, records, progression"
+  }
+  Subdomain StaffDomain {
+    type = SUPPORTING_DOMAIN
+    domainVisionStatement = "HR, payroll interfaces, workforce management"
+  }
+  Subdomain PaymentsDomain {
+    type = CORE_DOMAIN
+    domainVisionStatement = "Fee collection, bursaries, financial transactions"
+  }
+  Subdomain CoursesDomain {
+    type = CORE_DOMAIN
+    domainVisionStatement = "Catalogue, scheduling, LMS integration"
+  }
+  Subdomain AwardsDomain {
+    type = SUPPORTING_DOMAIN
+    domainVisionStatement = "Certification, graduation, external awarding body interfaces"
+  }
+  Subdomain ApprenticeshipsDomain {
+    type = CORE_DOMAIN
+    domainVisionStatement = "Employer engagement, ESFA funding bodies, compliance reporting"
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Teams → Context Ownership                                           */
+/* ------------------------------------------------------------------ */
+
+BoundedContext IntegrationTeam realizes StudentsContext, StaffContext, PaymentsContext, CoursesContext, AwardsContext, ApprenticeshipsContext {
+  type = TEAM
+  domainVisionStatement = "Owns migration execution, defines patterns, builds shared components, supports domain teams"
+}
+
+BoundedContext DatabaseAdministrationTeam realizes StudentsContext, StaffContext, PaymentsContext, CoursesContext, AwardsContext, ApprenticeshipsContext {
+  type = TEAM
+  domainVisionStatement = "Manages Oracle-to-Azure data migration, ensures data integrity during transition"
+}
+
+BoundedContext InfrastructureTeam realizes StudentsContext, StaffContext, PaymentsContext, CoursesContext, AwardsContext, ApprenticeshipsContext {
+  type = TEAM
+  domainVisionStatement = "Provisions Azure landing zones, manages networking/security, maintains CI/CD pipelines"
+}
+
+BoundedContext StudentsDomainTeam realizes StudentsContext {
+  type = TEAM
+  domainVisionStatement = "Owns Students domain integration logic, validates migrated flows, adopts self-service tooling"
+}
+
+BoundedContext StaffDomainTeam realizes StaffContext {
+  type = TEAM
+  domainVisionStatement = "Owns Staff domain integration logic, validates migrated flows, adopts self-service tooling"
+}
+
+BoundedContext PaymentsDomainTeam realizes PaymentsContext {
+  type = TEAM
+  domainVisionStatement = "Owns Payments domain integration logic, validates migrated flows, adopts self-service tooling"
+}
+
+BoundedContext CoursesDomainTeam realizes CoursesContext {
+  type = TEAM
+  domainVisionStatement = "Owns Courses domain integration logic, validates migrated flows, adopts self-service tooling"
+}
+
+BoundedContext AwardsDomainTeam realizes AwardsContext {
+  type = TEAM
+  domainVisionStatement = "Owns Awards domain integration logic, validates migrated flows, adopts self-service tooling"
+}
+
+BoundedContext ApprenticeshipsDomainTeam realizes ApprenticeshipsContext {
+  type = TEAM
+  domainVisionStatement = "Owns Apprenticeships domain integration logic, validates migrated flows, adopts self-service tooling"
+}
