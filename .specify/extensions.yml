@@ -1,5 +1,6 @@
 installed:
 - agent-context
+- diagram-gen
 settings:
   auto_execute_hooks: true
 hooks:
@@ -18,4 +19,12 @@ hooks:
     optional: true
     prompt: Execute speckit.agent-context.update?
     description: Refresh agent context after planning
+    condition: null
+  after_constitution:
+  - extension: diagram-gen
+    command: speckit.diagram-gen.update
+    enabled: true
+    optional: false
+    prompt: Regenerate sociotechnical architecture diagram
+    description: Regenerate sociotechnical architecture diagram after constitution changes
     condition: null
