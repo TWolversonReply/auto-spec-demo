@@ -1,68 +1,81 @@
 # auto-spec-demo
 
-A demonstration of [Spec Kit](https://github.com/github/spec-kit) for spec-driven development, showcasing the Contoso University integration migration project.
+A reusable demonstration of how to automatically surface [Spec Kit](https://github.com/github/spec-kit) documentation via GitHub Pages during project initiation — designed for live, real-time visibility in meetings.
 
-## What This Repo Contains
+## What This Demonstrates
 
-### Project Constitution
+When bootstrapping a new project with Spec Kit, the documentation produced by the spec-driven workflow (constitution, specifications, plans, tasks) is typically buried in dotfiles and feature branches. This repo shows a **zero-friction pattern** for exposing that documentation as a live website that updates automatically as specs are written.
 
-A fully populated constitution (`v1.0.0`) defining the principles and governance for migrating Contoso University's integration platform from **SoftwareAG WebMethods** to **Azure Integration Services**.
+### The Pattern
 
-Key principles established:
+1. **Initialise spec-kit** in any repo (`specify init --here --integration copilot`)
+2. **MkDocs + GitHub Actions** builds and publishes only the *meaningful* documentation — not templates or internal tooling
+3. **5-second auto-refresh** means meeting attendees watching the page see new content appear as it's committed
+4. **Selective publishing** — only the constitution and completed feature specs are exposed; empty templates and scaffolding are excluded
 
-- Cloud-First Migration
-- Domain-Driven Integration Boundaries (Students, Staff, Payments, Courses, Awards, Apprenticeships)
-- Incremental Migration (domain-by-domain, not big-bang)
-- Cost-Driven Decision Making (eliminating Oracle licences and on-prem overhead)
-- Team Accessibility (self-service for varying technical capabilities)
-- Observable by Default
-- Infrastructure as Code
+### How It Works
 
-### Spec Kit Integration
+```
+Push to main
+    │
+    ▼
+GitHub Actions workflow
+    │
+    ├── Assembles docs from:
+    │     • .specify/memory/constitution.md  →  /constitution/
+    │     • specs/**                         →  /specs/
+    │
+    ├── Builds with MkDocs Material
+    │
+    └── Deploys to GitHub Pages
+            │
+            ▼
+    Live site (auto-refreshes every 5s)
+```
 
-Initialised with `specify-cli` v0.9.5 using the **Copilot** integration. Includes:
+### Key Design Decisions
 
-- `.github/agents/` — Copilot agent definitions for spec-kit workflow commands
-- `.github/prompts/` — Prompt files for each spec-kit command
-- `.specify/` — Spec Kit configuration, templates, scripts, and extensions
+| Decision | Rationale |
+|----------|-----------|
+| MkDocs over Jekyll | Renders plain `.md` files without requiring front matter — compatible with spec-kit's output |
+| Build-time assembly | Source files stay in their spec-kit standard locations; no duplication in the repo |
+| Auto-refresh meta tag | Enables live demo without attendees manually refreshing |
+| Selective inclusion | Only publishes work-in-progress/complete docs, not empty templates |
+| Valorem Reply branding | Demonstrates theming capability for client-facing presentations |
 
-### GitHub Pages (MkDocs)
-
-The repo publishes documentation to GitHub Pages using **MkDocs Material** with a custom build workflow:
-
-- **URL**: https://twolversonreply.github.io/auto-spec-demo/
-- **Auto-refresh**: Pages include a 5-second meta refresh tag
-- **Branding**: Styled to match [Valorem Reply](https://www.valoremreply.com/) (Poppins font, navy header, blue accents)
-- **Selective content**: Only publishes the constitution and completed feature specs — not templates or internal tooling
-
-The GitHub Actions workflow assembles docs at build time from:
-
-| Source | Published path |
-|--------|---------------|
-| `.specify/memory/constitution.md` | `/constitution/` |
-| `specs/` (feature docs) | `/specs/` |
-
-## Getting Started
+## Quick Start (Reuse This Pattern)
 
 ### Prerequisites
 
-- [uv](https://docs.astral.sh/uv/) (Python package manager)
-- Git
+- GitHub repo with Pages enabled (source: GitHub Actions)
+- [uv](https://docs.astral.sh/uv/) for installing the Spec Kit CLI
 
-### Install Spec Kit CLI
+### Steps
 
 ```bash
+# 1. Install spec-kit
 uv tool install specify-cli --from git+https://github.com/github/spec-kit.git@v0.9.5
+
+# 2. Initialise in your repo
+specify init --here --integration copilot --force
+
+# 3. Copy these files from this repo into yours:
+#    - mkdocs.yml
+#    - overrides/main.html
+#    - docs_assets/stylesheets/extra.css
+#    - .github/workflows/deploy-pages.yml
+#    - index.md
+
+# 4. Switch GitHub Pages source to "GitHub Actions" in repo settings
+
+# 5. Push — your site is live
 ```
 
-### Spec-Kit Workflow
+### Adapting the Theme
 
-Use the slash commands with your Copilot agent:
+Edit `docs_assets/stylesheets/extra.css` to match your organisation's brand colours and fonts. The `overrides/main.html` template controls the auto-refresh interval.
 
-1. `/speckit.constitution` — Establish or amend project principles
-2. `/speckit.specify` — Create a feature specification
-3. `/speckit.plan` — Create an implementation plan
-4. `/speckit.tasks` — Generate actionable tasks
-5. `/speckit.implement` — Execute implementation
+## Live Site
 
-Feature documentation is written to `specs/<branch-name>/` and automatically published to GitHub Pages on push to `main`.
+https://twolversonreply.github.io/auto-spec-demo/
+
