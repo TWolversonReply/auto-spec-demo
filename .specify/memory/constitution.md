@@ -1,50 +1,71 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!-- Sync Impact Report
+  Version change: N/A → 1.0.0
+  Modified principles: N/A (initial creation)
+  Added sections: Core Principles (7), Business Domains, Team Structure & Governance, Governance
+  Removed sections: None
+  Templates requiring updates: ⚠ pending (no feature specs yet)
+  Follow-up TODOs: None
+-->
+# Contoso University Integration Migration Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Cloud-First Migration
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+All integration workloads MUST target Azure Integration Services as the destination platform. No new development or enhancement work shall be performed on the legacy SoftwareAG WebMethods platform. Every integration pattern implemented MUST have a clear Azure-native equivalent (Logic Apps, Service Bus, API Management, Event Grid, or Functions).
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### II. Domain-Driven Integration Boundaries
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+Integration services MUST be organised around the six core business domains: Students, Staff, Payments, Courses, Awards, and Apprenticeships. Each domain MUST own its integration contracts and message schemas. Cross-domain integration MUST occur through well-defined, versioned contracts — never through shared databases or direct service coupling.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### III. Incremental Migration
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+Migration MUST proceed domain-by-domain, not as a big-bang cutover. Each domain migration MUST be independently deployable and reversible. Coexistence between legacy (WebMethods) and target (Azure) platforms MUST be supported during transition via an anti-corruption layer or message bridge pattern.
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+### IV. Cost-Driven Decision Making
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+Architectural decisions MUST prioritise elimination of Oracle licence costs and on-premises infrastructure burden. Serverless and consumption-based Azure services MUST be preferred over provisioned capacity where workload patterns allow. Total cost of ownership (including operational overhead) MUST be evaluated for every technology choice.
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+### V. Team Accessibility
+
+Integration patterns and tooling MUST be accessible to business domain teams with varying technical capability. Self-service capabilities (e.g., templated Logic Apps, standardised connectors, documented APIs) MUST be provided so domain teams can build and maintain their own integrations with guidance from the Integration team. Documentation MUST be clear, example-driven, and free of unnecessary jargon.
+
+### VI. Observable by Default
+
+Every integration flow MUST emit structured telemetry (logs, metrics, traces) to a centralised observability platform. Failures MUST produce actionable alerts with sufficient context for diagnosis. End-to-end message tracing across domain boundaries MUST be supported from day one of each migrated flow.
+
+### VII. Infrastructure as Code
+
+All Azure resources MUST be provisioned and managed through infrastructure-as-code (Bicep or Terraform). No manual portal changes in production environments. Environment promotion (dev → test → prod) MUST follow a consistent, automated pipeline managed by the Infrastructure team.
+
+## Business Domains
+
+The following domains represent the integration boundaries for migration planning:
+
+- **Students** — Enrolment, registration, records, progression
+- **Staff** — HR, payroll interfaces, workforce management
+- **Payments** — Fee collection, bursaries, financial transactions
+- **Courses** — Catalogue, scheduling, learning management system integration
+- **Awards** — Certification, graduation, external awarding body interfaces
+- **Apprenticeships** — Employer engagement, funding bodies (ESFA), compliance reporting
+
+## Team Structure & Responsibilities
+
+| Team | Role in Migration |
+|------|-------------------|
+| **Integration** | Owns migration execution, defines patterns, builds shared components, supports domain teams |
+| **Database Administration** | Manages Oracle-to-Azure data migration, ensures data integrity during transition |
+| **Infrastructure** | Provisions Azure landing zones, manages networking/security, maintains CI/CD pipelines |
+| **Business Domain Teams** | Own domain-specific integration logic, validate migrated flows, adopt self-service tooling |
+
+Domain teams MUST be supported with training, templates, and pairing sessions. The Integration team MUST NOT become a bottleneck — their role is to enable, not gatekeep.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+- This constitution supersedes all other integration development practices for the migration programme.
+- Amendments require: documented rationale, review by Integration team lead, and a migration impact assessment.
+- All pull requests MUST verify compliance with these principles.
+- Architecture Decision Records (ADRs) MUST be created for any deviation from stated principles.
+- Quarterly reviews MUST assess migration progress, cost reduction achieved, and principle adherence.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.0.0 | **Ratified**: 2026-06-29 | **Last Amended**: 2026-06-29
