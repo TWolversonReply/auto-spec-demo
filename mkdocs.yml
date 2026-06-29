@@ -11,43 +11,6 @@ theme:
 
 docs_dir: _build/docs
 
-nav:
-  - Home: index.md
-  - Copilot Instructions: copilot-instructions.md
-  - Agents:
-      - Agent Context Update: agents/speckit.agent-context.update.agent.md
-      - Analyze: agents/speckit.analyze.agent.md
-      - Checklist: agents/speckit.checklist.agent.md
-      - Clarify: agents/speckit.clarify.agent.md
-      - Constitution: agents/speckit.constitution.agent.md
-      - Implement: agents/speckit.implement.agent.md
-      - Plan: agents/speckit.plan.agent.md
-      - Specify: agents/speckit.specify.agent.md
-      - Tasks: agents/speckit.tasks.agent.md
-      - Tasks to Issues: agents/speckit.taskstoissues.agent.md
-  - Prompts:
-      - Agent Context Update: prompts/speckit.agent-context.update.prompt.md
-      - Analyze: prompts/speckit.analyze.prompt.md
-      - Checklist: prompts/speckit.checklist.prompt.md
-      - Clarify: prompts/speckit.clarify.prompt.md
-      - Constitution: prompts/speckit.constitution.prompt.md
-      - Implement: prompts/speckit.implement.prompt.md
-      - Plan: prompts/speckit.plan.prompt.md
-      - Specify: prompts/speckit.specify.prompt.md
-      - Tasks: prompts/speckit.tasks.prompt.md
-      - Tasks to Issues: prompts/speckit.taskstoissues.prompt.md
-  - Specify:
-      - Constitution: specify/memory/constitution.md
-      - Extensions:
-          - Agent Context: specify/extensions/agent-context/README.md
-          - Agent Context Command: specify/extensions/agent-context/commands/speckit.agent-context.update.md
-      - Templates:
-          - Spec: specify/templates/spec-template.md
-          - Plan: specify/templates/plan-template.md
-          - Tasks: specify/templates/tasks-template.md
-          - Checklist: specify/templates/checklist-template.md
-          - Constitution: specify/templates/constitution-template.md
-
 markdown_extensions:
   - toc:
       permalink: true

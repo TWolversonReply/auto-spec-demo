@@ -34,19 +34,14 @@ jobs:
           # Copy index
           cp index.md _build/docs/index.md
 
-          # Copy .github content
-          cp .github/copilot-instructions.md _build/docs/copilot-instructions.md
-          cp -r .github/agents _build/docs/agents
-          cp -r .github/prompts _build/docs/prompts
+          # Copy constitution under home/constitution/
+          mkdir -p _build/docs/constitution
+          cp .specify/memory/constitution.md _build/docs/constitution/index.md
 
-          # Copy .specify content
-          mkdir -p _build/docs/specify/memory
-          mkdir -p _build/docs/specify/extensions/agent-context/commands
-          mkdir -p _build/docs/specify/templates
-          cp .specify/memory/constitution.md _build/docs/specify/memory/constitution.md
-          cp .specify/extensions/agent-context/README.md _build/docs/specify/extensions/agent-context/README.md
-          cp .specify/extensions/agent-context/commands/speckit.agent-context.update.md _build/docs/specify/extensions/agent-context/commands/speckit.agent-context.update.md
-          cp -r .specify/templates/*.md _build/docs/specify/templates/
+          # Copy specs (feature documentation produced by spec-kit workflow)
+          if [ -d specs ]; then
+            cp -r specs _build/docs/specs
+          fi
 
       - name: Build MkDocs site
         run: mkdocs build --strict

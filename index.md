@@ -6,8 +6,4 @@ Spec-Driven Development Demo powered by [Spec Kit](https://github.com/github/spe
 
 ## Documentation
 
-- [Copilot Instructions](copilot-instructions.md)
-- [Agents](agents/speckit.constitution.agent.md)
-- [Prompts](prompts/speckit.constitution.prompt.md)
-- [Constitution](specify/memory/constitution.md)
-- [Templates](specify/templates/spec-template.md)
+- [Constitution](constitution/index.md)
