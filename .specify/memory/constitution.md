@@ -68,17 +68,17 @@ Domain teams MUST be supported with training, templates, and pairing sessions. T
 
 ## Sociotechnical Architecture
 
-The following context map is generated from the [Context Mapper CML model](../model/context-map.cml) by the CI/CD pipeline. It visualises the bounded contexts (business domains), their relationships, and team ownership.
+The migration programme follows a **Team Topologies** approach to align team structure with business domain boundaries:
 
-The generation workflow is mandatory:
+- **Stream-aligned teams** (Business Domain Teams) each own one bounded context — Students, Staff, Payments, Courses, Awards, or Apprenticeships. They are responsible for migrating and validating the integration logic within their domain.
+- **Enabling team** (Integration) supports all domain teams by defining migration patterns, building shared components, and providing pairing/training. They do not own domain logic directly.
+- **Platform teams** (Infrastructure, Database Administration) provide the underlying capabilities — Azure landing zones, CI/CD pipelines, and data migration tooling — that all stream-aligned teams consume.
 
-- `model/context-map.cml` MUST be updated first.
-- Diagram generation MUST run after constitution or model updates (`/speckit.diagram-gen.update` when working through Speckit workflows).
-- Published documentation MUST reference the regenerated diagram artifact, not an ad hoc image.
+Cross-domain communication uses versioned contracts via Azure Service Bus and Event Grid, ensuring each bounded context remains autonomous. No shared databases or direct service coupling exists between domains.
 
 ![Sociotechnical Context Map](../images/context-map.png)
 
-Source: [model/context-map.cml](../model/context-map.cml)
+The formal model behind this diagram is maintained at [model/context-map.cml](../model/context-map.cml).
 
 ## Governance
 
