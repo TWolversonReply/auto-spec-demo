@@ -27,6 +27,27 @@ jobs:
       - name: Install MkDocs and dependencies
         run: pip install mkdocs-material
 
+      - uses: actions/setup-java@v4
+        if: hashFiles('model/*.cml') != ''
+        with:
+          java-version: "17"
+          distribution: "temurin"
+
+      - name: Generate context map from CML
+        if: hashFiles('model/*.cml') != ''
+        run: |
+          # Install Graphviz (required by Context Mapper for context map images)
+          sudo apt-get update -qq && sudo apt-get install -y -qq graphviz > /dev/null
+
+          # Download Context Mapper CLI
+          curl -sL https://repo1.maven.org/maven2/org/contextmapper/context-mapper-cli/6.12.0/context-mapper-cli-6.12.0.tar -o cm.tar
+          tar xf cm.tar
+
+          # Generate context map image (PNG) and PlantUML from CML
+          mkdir -p _build/docs/images
+          ./context-mapper-cli-6.12.0/bin/cm generate -i model/context-map.cml -g context-map -o _build/docs/images/
+          ./context-mapper-cli-6.12.0/bin/cm generate -i model/context-map.cml -g plantuml -o _build/docs/images/
+
       - name: Assemble docs from repo sources
         run: |
           mkdir -p _build/docs
@@ -40,6 +61,11 @@ jobs:
           # Copy constitution under home/constitution/
           mkdir -p _build/docs/constitution
           cp .specify/memory/constitution.md _build/docs/constitution/index.md
+
+          # Copy CML model source (for linking from docs)
+          if [ -d model ]; then
+            cp -r model _build/docs/model
+          fi
 
           # Copy specs (feature documentation produced by spec-kit workflow)
           if [ -d specs ]; then
