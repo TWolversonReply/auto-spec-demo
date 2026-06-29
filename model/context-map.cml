@@ -67,17 +67,11 @@ ContextMap ContosoUniversityIntegrationMap {
 }
 
 /* ================================================================== */
-/* Organisational / Team Map — team ownership of contexts               */
+/* Team ownership is expressed via 'realizes' on TEAM BCs below.      */
+/* A separate ORGANIZATIONAL ContextMap is NOT used because the        */
+/* context-map generator crashes when two ContextMap blocks coexist    */
+/* in a single CML file (Context Mapper CLI v6.12.0 bug).             */
 /* ================================================================== */
-
-ContextMap ContosoUniversityTeamMap {
-  type = ORGANIZATIONAL
-  state = TO_BE
-
-  contains IntegrationTeam, DatabaseAdministrationTeam, InfrastructureTeam,
-           StudentsDomainTeam, StaffDomainTeam, PaymentsDomainTeam,
-           CoursesDomainTeam, AwardsDomainTeam, ApprenticeshipsDomainTeam
-}
 
 /* ================================================================== */
 /* Bounded Contexts — application domains                              */

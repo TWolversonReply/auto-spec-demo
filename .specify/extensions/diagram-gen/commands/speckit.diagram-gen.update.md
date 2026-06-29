@@ -23,11 +23,13 @@ Follow this execution flow:
 
    The CML file MUST follow this structure:
 
+   The CML file MUST follow this structure:
+
    ```cml
    /**
     * SYSTEM_LANDSCAPE map — domain bounded contexts and their relationships.
-    * IMPORTANT: Only APPLICATION/FEATURE/SYSTEM contexts go here. TEAM contexts CANNOT
-    * be in a SYSTEM_LANDSCAPE map (Context Mapper semantic rule).
+    * Only APPLICATION/FEATURE/SYSTEM contexts go in the contains list.
+    * TEAM contexts are defined separately OUTSIDE any ContextMap block.
     */
    ContextMap ProjectContextMap {
      type = SYSTEM_LANDSCAPE
@@ -35,56 +37,69 @@ Follow this execution flow:
 
      contains <BoundedContext1>, <BoundedContext2>, ...
 
-     // Upstream-downstream relationships use arrow syntax: <- or ->
-     // The arrow ALWAYS points from upstream to downstream.
-     // Upstream roles: OHS (Open Host Service), PL (Published Language)
-     // Downstream roles: CF (Conformist), ACL (Anticorruption Layer)
-     // NEVER use <-> for upstream/downstream — that is for Partnership/SharedKernel only.
+     // Upstream-downstream: arrow points from upstream to downstream
      <DownstreamContext> [D,CF]<-[U,OHS,PL] <UpstreamContext> {
        implementationTechnology = "Azure Service Bus"
      }
-
-     // Symmetric relationships (equal partnership, no upstream/downstream):
-     // <Context1> [SK]<->[SK] <Context2>
-     // <Context1> [P]<->[P] <Context2>
    }
 
-   /**
-    * ORGANIZATIONAL map — team ownership. ALL contexts in this map MUST be type = TEAM.
-    * No APPLICATION/FEATURE/SYSTEM contexts allowed (Context Mapper semantic rule).
-    */
-   ContextMap ProjectTeamMap {
-     type = ORGANIZATIONAL
-     state = TO_BE
-
-     contains <TeamName1>Team, <TeamName2>Team, ...
-   }
-
-   // One BoundedContext per business domain (in the SYSTEM_LANDSCAPE map)
+   // One BoundedContext per business domain
    BoundedContext <DomainName>Context implements <SubdomainName> {
      type = APPLICATION
      domainVisionStatement = "<description from constitution>"
      responsibilities = "<key responsibilities>"
    }
 
-   // One BoundedContext per team (in the ORGANIZATIONAL map)
-   // Uses 'realizes' to link teams to the domain contexts they own
+   // Domain hierarchy
+   Domain <ProjectName>Domain {
+     Subdomain <SubdomainName> {
+       type = CORE_DOMAIN
+       domainVisionStatement = "<vision>"
+     }
+   }
+
+   // One BoundedContext per team — standalone, NOT inside any ContextMap block
    BoundedContext <TeamName>Team realizes <DomainName>Context {
      type = TEAM
      domainVisionStatement = "<team role from constitution>"
    }
    ```
 
-   Rules for the CML model:
-   - Each **business domain** from the constitution becomes a `BoundedContext` with `type = APPLICATION`.
-   - Each **team** becomes a `BoundedContext` with `type = TEAM` that `realizes` the domain contexts it is responsible for.
-   - **CRITICAL**: TEAM contexts and APPLICATION contexts MUST be in separate context maps. `SYSTEM_LANDSCAPE` maps cannot contain TEAM contexts. `ORGANIZATIONAL` maps can only contain TEAM contexts.
-   - **CRITICAL**: Use `<-` or `->` arrow syntax for upstream/downstream relationships. The arrow points from upstream to downstream. NEVER use `<->` for upstream/downstream — `<->` is ONLY for symmetric relationships (Partnership `[P]` or Shared Kernel `[SK]`).
-   - **CRITICAL**: Downstream roles are `CF` (Conformist) and `ACL` (Anticorruption Layer). Upstream roles are `OHS` (Open Host Service) and `PL` (Published Language). Do NOT put upstream roles on the downstream side or vice versa.
-   - Use `implementationTechnology` to note the target platform (e.g., "Azure Integration Services") where relevant.
-   - Where the constitution describes cross-domain interactions, model these as relationships (Upstream/Downstream, Partnership, Shared Kernel, etc.).
-   - The Integration team should realize shared/cross-cutting contexts.
-   - Include a `Domain` block with `Subdomain` entries matching the constitution's business domains.
+   ### CML Syntax Rules (validated against Context Mapper CLI v6.12.0)
+
+   **File structure:**
+   - The CML file MUST contain exactly ONE `ContextMap` block of type `SYSTEM_LANDSCAPE`.
+   - Do NOT create a second `ContextMap` block (e.g. `ORGANIZATIONAL`). The Context Mapper
+     CLI `context-map` generator crashes with `BoundedContextAlreadyPartOfContextMapException`
+     when two `ContextMap` blocks coexist in a single file.
+   - TEAM bounded contexts are defined as standalone `BoundedContext` declarations outside
+     the `ContextMap` block. They use `realizes` to link to the domain contexts they own.
+     This preserves team-to-context ownership in the model without requiring a second map.
+
+   **Context types:**
+   - Each **business domain** → `BoundedContext` with `type = APPLICATION`.
+   - Each **team** → `BoundedContext` with `type = TEAM` with `realizes`.
+   - TEAM contexts MUST NOT appear in the `contains` list of a `SYSTEM_LANDSCAPE` map.
+
+   **Relationship syntax:**
+   - **Upstream/Downstream**: Use `<-` or `->` arrow syntax. The arrow ALWAYS points
+     from upstream to downstream.
+     Example: `DownstreamCtx [D,CF]<-[U,OHS,PL] UpstreamCtx`
+   - **NEVER** use `<->` for upstream/downstream. `<->` is ONLY for symmetric
+     relationships: Partnership `[P]<->[P]` or Shared Kernel `[SK]<->[SK]`.
+   - **Downstream roles** (left of `<-`): `CF` (Conformist), `ACL` (Anticorruption Layer).
+   - **Upstream roles** (right of `<-`): `OHS` (Open Host Service), `PL` (Published Language).
+   - Do NOT place upstream roles on the downstream side or vice versa.
+   - Every context referenced in a relationship MUST be in the `contains` list.
+
+   **Other rules:**
+   - Use `implementationTechnology` to note the target platform where relevant.
+   - The Integration team should `realizes` shared/cross-cutting contexts.
+   - Include a `Domain` block with `Subdomain` entries matching the constitution.
+   - Subdomain types: `CORE_DOMAIN`, `SUPPORTING_DOMAIN`, `GENERIC_SUBDOMAIN`.
+   - BoundedContext names must be unique across the entire CML file.
+   - The `=` sign in attribute assignments (e.g. `type = APPLICATION`) is optional in CML
+     but should be used consistently for readability.
 
 3. **Update the constitution** at `.specify/memory/constitution.md`:
    - Add a new section `## Sociotechnical Architecture` immediately before the `## Governance` section.
