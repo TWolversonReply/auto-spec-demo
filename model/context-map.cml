@@ -1,74 +1,87 @@
 /**
  * Contoso University Integration Migration — Context Map
- * Version: 1.0.0
+ * Version: 1.1.0
  * Generated: 2026-06-29
  *
- * Models the 6 bounded contexts (business domains), 4 teams,
- * and their relationships per the project constitution.
+ * Models the 6 bounded contexts (business domains) and their
+ * relationships per the project constitution.
+ *
+ * Team ownership is modelled in a separate ORGANIZATIONAL map below.
  */
+
+/* ================================================================== */
+/* System Landscape — domain context relationships                     */
+/* ================================================================== */
 
 ContextMap ContosoUniversityIntegrationMap {
   type = SYSTEM_LANDSCAPE
   state = TO_BE
 
-  contains StudentsContext
-  contains StaffContext
-  contains PaymentsContext
-  contains CoursesContext
-  contains AwardsContext
-  contains ApprenticeshipsContext
+  contains StudentsContext, StaffContext, PaymentsContext,
+           CoursesContext, AwardsContext, ApprenticeshipsContext
 
-  /* Cross-domain relationships via versioned contracts (no shared DB, no direct coupling) */
-
-  /* Students enrol in Courses */
-  StudentsContext [D, CF] <-> [U, CF] CoursesContext {
+  /* Students enrol in Courses — Courses is upstream (catalogue is the source of truth) */
+  StudentsContext [D,CF]<-[U,OHS,PL] CoursesContext {
     implementationTechnology = "Azure Service Bus + versioned message contracts"
   }
 
-  /* Students make Payments (fees, bursaries) */
-  StudentsContext [D, CF] <-> [U, CF] PaymentsContext {
+  /* Students make Payments — Payments is upstream (fee schedule is the source of truth) */
+  StudentsContext [D,ACL]<-[U,OHS,PL] PaymentsContext {
     implementationTechnology = "Azure Service Bus + versioned message contracts"
   }
 
-  /* Students receive Awards on completion */
-  StudentsContext [D, CF] <-> [U, CF] AwardsContext {
+  /* Students receive Awards on completion — Awards is downstream (triggered by progression events) */
+  AwardsContext [D,CF]<-[U,OHS,PL] StudentsContext {
     implementationTechnology = "Azure Event Grid + versioned event schemas"
   }
 
-  /* Courses feed into Awards (certification, graduation) */
-  CoursesContext [U, CF] <-> [D, CF] AwardsContext {
+  /* Courses feed into Awards (certification, graduation) — Awards is downstream */
+  AwardsContext [D,CF]<-[U,OHS,PL] CoursesContext {
     implementationTechnology = "Azure Event Grid + versioned event schemas"
   }
 
-  /* Apprenticeships link to Courses (programme delivery) */
-  ApprenticeshipsContext [D, CF] <-> [U, CF] CoursesContext {
+  /* Apprenticeships link to Courses — Courses is upstream (programme catalogue) */
+  ApprenticeshipsContext [D,CF]<-[U,OHS,PL] CoursesContext {
     implementationTechnology = "Azure Service Bus + versioned message contracts"
   }
 
-  /* Apprenticeships link to Students (apprentice records) */
-  ApprenticeshipsContext [D, CF] <-> [U, CF] StudentsContext {
+  /* Apprenticeships link to Students — Students is upstream (apprentice records) */
+  ApprenticeshipsContext [D,CF]<-[U,OHS,PL] StudentsContext {
     implementationTechnology = "Azure Service Bus + versioned message contracts"
   }
 
-  /* Apprenticeships generate Payments (employer/ESFA funding) */
-  ApprenticeshipsContext [D, CF] <-> [U, CF] PaymentsContext {
+  /* Apprenticeships generate Payments — Payments is upstream (employer/ESFA funding) */
+  ApprenticeshipsContext [D,ACL]<-[U,OHS,PL] PaymentsContext {
     implementationTechnology = "Azure Service Bus + versioned message contracts"
   }
 
-  /* Staff payroll interfaces link to Payments */
-  StaffContext [D, CF] <-> [U, CF] PaymentsContext {
+  /* Staff payroll interfaces link to Payments — Payments is upstream */
+  StaffContext [D,ACL]<-[U,OHS,PL] PaymentsContext {
     implementationTechnology = "Azure Logic Apps + API Management"
   }
 
-  /* Staff assigned to Courses (scheduling, workforce) */
-  StaffContext [D, CF] <-> [U, CF] CoursesContext {
+  /* Staff assigned to Courses — Courses is upstream (scheduling is the source of truth) */
+  StaffContext [D,CF]<-[U,OHS,PL] CoursesContext {
     implementationTechnology = "Azure Logic Apps + API Management"
   }
 }
 
-/* ------------------------------------------------------------------ */
-/* Bounded Contexts                                                    */
-/* ------------------------------------------------------------------ */
+/* ================================================================== */
+/* Organisational / Team Map — team ownership of contexts               */
+/* ================================================================== */
+
+ContextMap ContosoUniversityTeamMap {
+  type = ORGANIZATIONAL
+  state = TO_BE
+
+  contains IntegrationTeam, DatabaseAdministrationTeam, InfrastructureTeam,
+           StudentsDomainTeam, StaffDomainTeam, PaymentsDomainTeam,
+           CoursesDomainTeam, AwardsDomainTeam, ApprenticeshipsDomainTeam
+}
+
+/* ================================================================== */
+/* Bounded Contexts — application domains                              */
+/* ================================================================== */
 
 BoundedContext StudentsContext implements StudentsDomain {
   type = APPLICATION
@@ -112,9 +125,9 @@ BoundedContext ApprenticeshipsContext implements ApprenticeshipsDomain {
   responsibilities = "EmployerEngagement", "ESFAFunding", "ComplianceReporting"
 }
 
-/* ------------------------------------------------------------------ */
+/* ================================================================== */
 /* Domains                                                             */
-/* ------------------------------------------------------------------ */
+/* ================================================================== */
 
 Domain ContosoUniversityDomain {
   Subdomain StudentsDomain {
@@ -143,9 +156,9 @@ Domain ContosoUniversityDomain {
   }
 }
 
-/* ------------------------------------------------------------------ */
-/* Teams → Context Ownership                                           */
-/* ------------------------------------------------------------------ */
+/* ================================================================== */
+/* Teams — each realizes the domain contexts it is responsible for     */
+/* ================================================================== */
 
 BoundedContext IntegrationTeam realizes StudentsContext, StaffContext, PaymentsContext, CoursesContext, AwardsContext, ApprenticeshipsContext {
   type = TEAM
@@ -164,30 +177,30 @@ BoundedContext InfrastructureTeam realizes StudentsContext, StaffContext, Paymen
 
 BoundedContext StudentsDomainTeam realizes StudentsContext {
   type = TEAM
-  domainVisionStatement = "Owns Students domain integration logic, validates migrated flows, adopts self-service tooling"
+  domainVisionStatement = "Owns Students domain integration logic, validates migrated flows"
 }
 
 BoundedContext StaffDomainTeam realizes StaffContext {
   type = TEAM
-  domainVisionStatement = "Owns Staff domain integration logic, validates migrated flows, adopts self-service tooling"
+  domainVisionStatement = "Owns Staff domain integration logic, validates migrated flows"
 }
 
 BoundedContext PaymentsDomainTeam realizes PaymentsContext {
   type = TEAM
-  domainVisionStatement = "Owns Payments domain integration logic, validates migrated flows, adopts self-service tooling"
+  domainVisionStatement = "Owns Payments domain integration logic, validates migrated flows"
 }
 
 BoundedContext CoursesDomainTeam realizes CoursesContext {
   type = TEAM
-  domainVisionStatement = "Owns Courses domain integration logic, validates migrated flows, adopts self-service tooling"
+  domainVisionStatement = "Owns Courses domain integration logic, validates migrated flows"
 }
 
 BoundedContext AwardsDomainTeam realizes AwardsContext {
   type = TEAM
-  domainVisionStatement = "Owns Awards domain integration logic, validates migrated flows, adopts self-service tooling"
+  domainVisionStatement = "Owns Awards domain integration logic, validates migrated flows"
 }
 
 BoundedContext ApprenticeshipsDomainTeam realizes ApprenticeshipsContext {
   type = TEAM
-  domainVisionStatement = "Owns Apprenticeships domain integration logic, validates migrated flows, adopts self-service tooling"
+  domainVisionStatement = "Owns Apprenticeships domain integration logic, validates migrated flows"
 }

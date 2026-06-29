@@ -24,26 +24,51 @@ Follow this execution flow:
    The CML file MUST follow this structure:
 
    ```cml
+   /**
+    * SYSTEM_LANDSCAPE map — domain bounded contexts and their relationships.
+    * IMPORTANT: Only APPLICATION/FEATURE/SYSTEM contexts go here. TEAM contexts CANNOT
+    * be in a SYSTEM_LANDSCAPE map (Context Mapper semantic rule).
+    */
    ContextMap ProjectContextMap {
      type = SYSTEM_LANDSCAPE
-     state = AS_IS
+     state = TO_BE
 
      contains <BoundedContext1>, <BoundedContext2>, ...
 
-     // Define relationships between contexts
-     <BoundedContext1> [D,CF]-> <BoundedContext2> {
+     // Upstream-downstream relationships use arrow syntax: <- or ->
+     // The arrow ALWAYS points from upstream to downstream.
+     // Upstream roles: OHS (Open Host Service), PL (Published Language)
+     // Downstream roles: CF (Conformist), ACL (Anticorruption Layer)
+     // NEVER use <-> for upstream/downstream — that is for Partnership/SharedKernel only.
+     <DownstreamContext> [D,CF]<-[U,OHS,PL] <UpstreamContext> {
        implementationTechnology = "Azure Service Bus"
      }
+
+     // Symmetric relationships (equal partnership, no upstream/downstream):
+     // <Context1> [SK]<->[SK] <Context2>
+     // <Context1> [P]<->[P] <Context2>
    }
 
-   // One BoundedContext per business domain
-   BoundedContext <DomainName>Context {
-     type = FEATURE
+   /**
+    * ORGANIZATIONAL map — team ownership. ALL contexts in this map MUST be type = TEAM.
+    * No APPLICATION/FEATURE/SYSTEM contexts allowed (Context Mapper semantic rule).
+    */
+   ContextMap ProjectTeamMap {
+     type = ORGANIZATIONAL
+     state = TO_BE
+
+     contains <TeamName1>Team, <TeamName2>Team, ...
+   }
+
+   // One BoundedContext per business domain (in the SYSTEM_LANDSCAPE map)
+   BoundedContext <DomainName>Context implements <SubdomainName> {
+     type = APPLICATION
      domainVisionStatement = "<description from constitution>"
      responsibilities = "<key responsibilities>"
    }
 
-   // One Team per organisational team, with bounded context assignments
+   // One BoundedContext per team (in the ORGANIZATIONAL map)
+   // Uses 'realizes' to link teams to the domain contexts they own
    BoundedContext <TeamName>Team realizes <DomainName>Context {
      type = TEAM
      domainVisionStatement = "<team role from constitution>"
@@ -51,12 +76,15 @@ Follow this execution flow:
    ```
 
    Rules for the CML model:
-   - Each **business domain** from the constitution becomes a `BoundedContext` with `type = FEATURE`.
+   - Each **business domain** from the constitution becomes a `BoundedContext` with `type = APPLICATION`.
    - Each **team** becomes a `BoundedContext` with `type = TEAM` that `realizes` the domain contexts it is responsible for.
+   - **CRITICAL**: TEAM contexts and APPLICATION contexts MUST be in separate context maps. `SYSTEM_LANDSCAPE` maps cannot contain TEAM contexts. `ORGANIZATIONAL` maps can only contain TEAM contexts.
+   - **CRITICAL**: Use `<-` or `->` arrow syntax for upstream/downstream relationships. The arrow points from upstream to downstream. NEVER use `<->` for upstream/downstream — `<->` is ONLY for symmetric relationships (Partnership `[P]` or Shared Kernel `[SK]`).
+   - **CRITICAL**: Downstream roles are `CF` (Conformist) and `ACL` (Anticorruption Layer). Upstream roles are `OHS` (Open Host Service) and `PL` (Published Language). Do NOT put upstream roles on the downstream side or vice versa.
    - Use `implementationTechnology` to note the target platform (e.g., "Azure Integration Services") where relevant.
    - Where the constitution describes cross-domain interactions, model these as relationships (Upstream/Downstream, Partnership, Shared Kernel, etc.).
    - The Integration team should realize shared/cross-cutting contexts.
-   - Use the standard Context Mapper relationship types: `[U,OHS,PL]->`, `[D,CF]->`, `[D,ACL]->`, `Partnership`, `Shared-Kernel`.
+   - Include a `Domain` block with `Subdomain` entries matching the constitution's business domains.
 
 3. **Update the constitution** at `.specify/memory/constitution.md`:
    - Add a new section `## Sociotechnical Architecture` immediately before the `## Governance` section.
