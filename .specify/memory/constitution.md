@@ -1,19 +1,18 @@
 <!-- Sync Impact Report
-  Version change: 2.0.2 -> 2.1.0
+  Version change: 2.1.3 -> 2.1.4
   Modified principles:
-    - VIII. Sociotechnical Architecture as Source of Truth (added component-diagram.png to generated artifacts)
+    - VIII. Sociotechnical Architecture as Source of Truth (no change)
   Modified sections:
-    - Sociotechnical Architecture (added component diagram image and description)
+    - Sociotechnical Architecture (corrected image/model links to be valid from .specify/memory/constitution.md)
   Added sections: None
   Removed sections: None
   Templates requiring updates:
     - ✅ .specify/templates/plan-template.md (no diagram-specific references)
     - ✅ .specify/templates/spec-template.md (no diagram-specific references)
     - ✅ .specify/templates/tasks-template.md (no diagram-specific references)
+    - ⚠ .specify/templates/commands/*.md (directory not present in this repository)
     - ✅ README.md (no conflicting diagram references)
-  Follow-up TODOs:
-    - Run /speckit.diagram-gen.component to generate docs_assets/images/component-diagram.png
-    - Verify CI pipeline publishes the new component diagram artifact alongside context-map.png
+  Follow-up TODOs: None
 -->
 # Contoso University Integration Migration Constitution
 
@@ -49,7 +48,7 @@ All Azure resources MUST be provisioned and managed through infrastructure-as-co
 
 ### VIII. Sociotechnical Architecture as Source of Truth
 
-Sociotechnical architecture documentation MUST be maintained as executable source, with `model/context-map.cml` as the canonical model for domain boundaries, relationships, and team ownership. Any change to domains, ownership, or integration boundaries MUST update the CML model in the same change set. Generated visual artifacts (currently `images/context-map.png` and `images/component-diagram.png`) MUST be regenerated from the model and published with documentation updates. Manual edits to generated diagram artifacts are forbidden.
+Sociotechnical architecture documentation MUST be maintained as executable source, with `model/context-map.cml` as the canonical model for domain boundaries, relationships, and team ownership. Any change to domains, ownership, or integration boundaries MUST update the CML model in the same change set. Generated visual artifacts (source files in `docs_assets/images/context-map.png` and `docs_assets/images/component-diagram.png`, published as `images/context-map.png` and `images/component-diagram.png`) MUST be regenerated from the model and published with documentation updates. Manual edits to generated diagram artifacts are forbidden.
 
 ## Business Domains
 
@@ -77,19 +76,18 @@ Business-system ownership and central-team enablement are both authoritative and
 
 ## Sociotechnical Architecture
 
-This sociotechnical context map is generated from the Context Mapper CML source model by the CI/CD pipeline to keep team ownership and domain boundaries consistent with the constitution.
+This sociotechnical context map is generated from the Context Mapper CML source model by the CI/CD pipeline to keep team ownership and domain boundaries synchronized with this constitution.
 
-- **Stream-aligned business-system teams**: Student Services, HR Systems, and Awards own domain integration delivery.
-- **Enabling central team**: Integration accelerates delivery through standards, templates, and shared capabilities.
-- **Platform central teams**: Infrastructure and Database Administration provide foundational platform and data migration capabilities consumed by business-system teams.
+![Sociotechnical Context Map](../../docs_assets/images/context-map.png)
 
-![Sociotechnical Context Map](../images/context-map.png)
+The component diagram below shows bounded context dependencies and integration
+technologies at a glance.
 
-The component diagram below shows bounded context dependencies and integration technologies at a glance.
+![Component Diagram](../../docs_assets/images/component-diagram.png)
 
-![Component Diagram](../images/component-diagram.png)
+Source: [model/context-map.cml](../../model/context-map.cml)
 
-Source: [model/context-map.cml](../model/context-map.cml)
+Component source: [component-diagram.puml](../../docs_assets/images/component-diagram.puml)
 
 ## Governance
 
@@ -101,4 +99,4 @@ Source: [model/context-map.cml](../model/context-map.cml)
 - Speckit constitution updates MUST trigger the diagram generation hooks (`speckit.diagram-gen.update` and `speckit.diagram-gen.component`) before completion.
 - Quarterly reviews MUST assess migration progress, cost reduction achieved, and principle adherence.
 
-**Version**: 2.1.0 | **Ratified**: 2026-06-29 | **Last Amended**: 2026-06-30
+**Version**: 2.1.4 | **Ratified**: 2026-06-29 | **Last Amended**: 2026-06-30

@@ -128,7 +128,7 @@ Follow this execution flow:
      The component diagram below shows bounded context dependencies and integration
      technologies at a glance.
 
-     ![Component Diagram](../images/component-diagram.png)
+    ![Component Diagram](../../docs_assets/images/component-diagram.png)
      ```
 
    - Do NOT remove or modify the existing context map image reference.
