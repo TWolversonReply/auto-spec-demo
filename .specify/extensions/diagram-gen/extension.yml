@@ -3,8 +3,8 @@ schema_version: "1.0"
 extension:
   id: diagram-gen
   name: "Sociotechnical Diagram Generator"
-  version: "1.0.0"
-  description: "Generates sociotechnical architecture diagrams correlating teams to bounded contexts using Context Mapper CML and PlantUML"
+  version: "2.0.0"
+  description: "Generates sociotechnical architecture diagrams correlating teams to bounded contexts using Context Mapper CML, graphical context maps, and PlantUML component diagrams"
   author: TWolversonReply
   license: MIT
 
@@ -15,13 +15,21 @@ provides:
   commands:
     - name: speckit.diagram-gen.update
       file: commands/speckit.diagram-gen.update.md
-      description: "Generate or update the Context Mapper CML model and sociotechnical diagram from the constitution"
+      description: "Generate or update the Context Mapper CML model and sociotechnical context map diagram from the constitution"
+    - name: speckit.diagram-gen.component
+      file: commands/speckit.diagram-gen.component.md
+      description: "Generate a PlantUML component diagram from the CML model showing bounded context dependencies and integration technologies"
 
 hooks:
   after_constitution:
-    command: speckit.diagram-gen.update
-    optional: true
-    description: "Regenerate sociotechnical architecture diagram after constitution changes"
+    - command: speckit.diagram-gen.update
+      priority: 5
+      optional: true
+      description: "Regenerate sociotechnical context map diagram after constitution changes"
+    - command: speckit.diagram-gen.component
+      priority: 10
+      optional: true
+      description: "Regenerate PlantUML component diagram after constitution changes"
 
 tags:
   - "diagram"

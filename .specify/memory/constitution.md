@@ -1,21 +1,19 @@
 <!-- Sync Impact Report
-  Version change: 2.0.1 -> 2.0.2
+  Version change: 2.0.2 -> 2.1.0
   Modified principles:
-    - V. Team Ownership Accessibility (clarified business-system ownership plus central-team enablement)
-    - VII. Infrastructure as Code Ownership (clarified domain ownership with central infrastructure stewardship)
-    - Team Structure & Responsibilities (restored central teams)
-    - Sociotechnical Architecture (restored stream-aligned + enabling/platform model)
+    - VIII. Sociotechnical Architecture as Source of Truth (added component-diagram.png to generated artifacts)
+  Modified sections:
+    - Sociotechnical Architecture (added component diagram image and description)
   Added sections: None
   Removed sections: None
   Templates requiring updates:
-    - ✅ .specify/templates/plan-template.md (reviewed, no constitution-specific team references)
-    - ✅ .specify/templates/spec-template.md (reviewed, no constitution-specific team references)
-    - ✅ .specify/templates/tasks-template.md (reviewed, no constitution-specific team references)
-    - ✅ .specify/templates/commands/*.md (no command templates present in repository)
-    - ✅ README.md (reviewed, no conflicting team-ownership statements)
+    - ✅ .specify/templates/plan-template.md (no diagram-specific references)
+    - ✅ .specify/templates/spec-template.md (no diagram-specific references)
+    - ✅ .specify/templates/tasks-template.md (no diagram-specific references)
+    - ✅ README.md (no conflicting diagram references)
   Follow-up TODOs:
-    - Run /speckit.diagram-gen.update to regenerate sociotechnical diagrams after constitution/model changes
-    - Ensure CI pipeline regenerates and publishes the diagram artifact at images/context-map.png
+    - Run /speckit.diagram-gen.component to generate docs_assets/images/component-diagram.png
+    - Verify CI pipeline publishes the new component diagram artifact alongside context-map.png
 -->
 # Contoso University Integration Migration Constitution
 
@@ -51,7 +49,7 @@ All Azure resources MUST be provisioned and managed through infrastructure-as-co
 
 ### VIII. Sociotechnical Architecture as Source of Truth
 
-Sociotechnical architecture documentation MUST be maintained as executable source, with `model/context-map.cml` as the canonical model for domain boundaries, relationships, and team ownership. Any change to domains, ownership, or integration boundaries MUST update the CML model in the same change set. A generated visual artifact (currently `images/context-map.png`) MUST be regenerated from the model and published with documentation updates. Manual edits to generated diagram artifacts are forbidden.
+Sociotechnical architecture documentation MUST be maintained as executable source, with `model/context-map.cml` as the canonical model for domain boundaries, relationships, and team ownership. Any change to domains, ownership, or integration boundaries MUST update the CML model in the same change set. Generated visual artifacts (currently `images/context-map.png` and `images/component-diagram.png`) MUST be regenerated from the model and published with documentation updates. Manual edits to generated diagram artifacts are forbidden.
 
 ## Business Domains
 
@@ -87,6 +85,10 @@ This sociotechnical context map is generated from the Context Mapper CML source 
 
 ![Sociotechnical Context Map](../images/context-map.png)
 
+The component diagram below shows bounded context dependencies and integration technologies at a glance.
+
+![Component Diagram](../images/component-diagram.png)
+
 Source: [model/context-map.cml](../model/context-map.cml)
 
 ## Governance
@@ -96,7 +98,7 @@ Source: [model/context-map.cml](../model/context-map.cml)
 - All pull requests MUST verify compliance with these principles.
 - Architecture Decision Records (ADRs) MUST be created for any deviation from stated principles.
 - Pull requests that modify business domains, team ownership, or boundaries MUST include updated sociotechnical model and regenerated diagrams.
-- Speckit constitution updates MUST trigger the diagram generation hook (`speckit.diagram-gen.update`) before completion.
+- Speckit constitution updates MUST trigger the diagram generation hooks (`speckit.diagram-gen.update` and `speckit.diagram-gen.component`) before completion.
 - Quarterly reviews MUST assess migration progress, cost reduction achieved, and principle adherence.
 
-**Version**: 2.0.2 | **Ratified**: 2026-06-29 | **Last Amended**: 2026-06-29
+**Version**: 2.1.0 | **Ratified**: 2026-06-29 | **Last Amended**: 2026-06-30
