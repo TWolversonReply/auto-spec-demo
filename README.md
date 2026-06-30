@@ -36,9 +36,11 @@ GitHub Actions workflow
 ### Sociotechnical Architecture Workflow
 
 - Canonical model: `model/context-map.cml`
-- Generated artifact: `images/context-map.png`
-- Constitution/model changes that affect domains, ownership, or boundaries must regenerate the diagram.
-- In Speckit workflows, run `/speckit.diagram-gen.update` (also configured as the mandatory `after_constitution` hook).
+- Generated artifacts:
+  - `docs_assets/images/context-map.png` — graphical context map (team ownership clusters)
+  - `docs_assets/images/component-diagram.png` — UML component diagram (integration dependencies)
+- Constitution/model changes that affect domains, ownership, or boundaries must regenerate both diagrams.
+- In Speckit workflows, run `/speckit.diagram-gen.update` then `/speckit.diagram-gen.component` (both are also configured as mandatory `after_constitution` hooks).
 
 ### Key Design Decisions
 

@@ -25,6 +25,13 @@ hooks:
     command: speckit.diagram-gen.update
     enabled: true
     optional: false
-    prompt: Regenerate sociotechnical architecture diagram
-    description: Regenerate sociotechnical architecture diagram after constitution changes
+    prompt: Regenerate sociotechnical context map diagram
+    description: Regenerate sociotechnical context map diagram after constitution changes
+    condition: null
+  - extension: diagram-gen
+    command: speckit.diagram-gen.component
+    enabled: true
+    optional: false
+    prompt: Regenerate PlantUML component diagram
+    description: Regenerate PlantUML component diagram after constitution changes
     condition: null

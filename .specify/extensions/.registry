@@ -16,18 +16,19 @@
       "installed_at": "2026-06-29T17:34:05.744300+00:00"
     },
     "diagram-gen": {
-      "version": "1.0.0",
+      "version": "2.0.0",
       "source": "local",
       "manifest_hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
       "enabled": true,
       "priority": 10,
       "registered_commands": {
         "copilot": [
-          "speckit.diagram-gen.update"
+          "speckit.diagram-gen.update",
+          "speckit.diagram-gen.component"
         ]
       },
       "registered_skills": [],
-      "installed_at": "2026-06-29T20:20:00.000000+00:00"
+      "installed_at": "2026-06-30T11:00:00.000000+00:00"
     }
   }
 }

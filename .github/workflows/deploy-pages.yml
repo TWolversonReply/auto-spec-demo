@@ -41,6 +41,11 @@ jobs:
           mkdir -p _build/docs/constitution
           cp .specify/memory/constitution.md _build/docs/constitution/index.md
 
+          # Rewrite constitution links for published docs layout.
+          # Source file lives at .specify/memory/, while published file lives at constitution/index.md.
+          sed -i 's|../../docs_assets/images/|../images/|g' _build/docs/constitution/index.md
+          sed -i 's|../../model/|../model/|g' _build/docs/constitution/index.md
+
           # Copy CML model source (for linking from docs)
           if [ -d model ]; then
             cp -r model _build/docs/model
